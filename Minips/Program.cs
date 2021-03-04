@@ -1,7 +1,12 @@
-﻿using Minips.Instructions;
+﻿using Minips.Instrucoes;
+using Minips.Instructions;
 using Minips.Memory;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text;
 
 namespace minips
 {
@@ -13,43 +18,72 @@ namespace minips
         private static MinipsMemory _memory;
         private static MinipsMemory _registers;
 
+#if DEBUG
+
         static void Main(string[] args)
         {
             _memory = new MinipsMemory();
             _registers = new MinipsMemory();
 
-            string textFile = "C:\\Users\\Miguel dos Reis\\OneDrive\\UFABC\\Arquitetura de Computadores\\Projeto\\01.soma.text";
-            string dataFile = "C:\\Users\\Miguel dos Reis\\OneDrive\\UFABC\\Arquitetura de Computadores\\Projeto\\01.soma.data";
+            string textFile = "C:\\Users\\Miguel dos Reis\\OneDrive\\UFABC\\Arquitetura de Computadores\\Projeto\\Entradas\\02.hello.text";
+            string dataFile = "C:\\Users\\Miguel dos Reis\\OneDrive\\UFABC\\Arquitetura de Computadores\\Projeto\\Entradas\\02.hello.data";
 
-            // Loads .text
-            using (var binaryReader = new BinaryReader(File.Open(textFile, FileMode.Open, FileAccess.Read, FileShare.Read)))
+            CarregarInstrucoes(textFile);
+            CarregarDados(dataFile);
+        }
+#else
+            static void Main(string[] args)
+        {
+            string tipoExecucao = args[0];
+            string file = args[1];
+
+            _memory = new MinipsMemory();
+            _registers = new MinipsMemory();
+
+            string textFile = $"./{file}.text";
+            string dataFile = $"./{file}.data";
+
+            CarregarInstrucoes(textFile);
+            CarregarDados(dataFile);
+        }
+#endif
+
+        static void CarregarInstrucoes(string fileName)
+        {
+            using (var binaryReader = new BinaryReader(File.OpenRead(fileName)))
             {
-                byte[] bytes = binaryReader.ReadBytes(4);
+                byte[] bytes = ReadBytesInOrder(binaryReader, 4);
                 int address = TEXT_SECTION_START;
 
                 while (bytes != null && bytes.Length == 4)
                 {
-                    _memory.Write(address, bytes);
-
-                    bytes = binaryReader.ReadBytes(4);
+                    _registers.Write(address, bytes);
+                    bytes = ReadBytesInOrder(binaryReader, 4);
                     address += 4;
                 }
             }
+        }
 
-            // Loads .data
-            using (var binaryReader = new BinaryReader(File.Open(dataFile, FileMode.Open, FileAccess.Read, FileShare.Read)))
+        static void CarregarDados(string fileName)
+        {
+            using (var binaryReader = new BinaryReader(File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.Read)))
             {
-                byte[] bytes = binaryReader.ReadBytes(4); ;
+                byte[] bytes = ReadBytesInOrder(binaryReader, 4);
+
                 int address = DATA_SECTION_START;
 
                 while (bytes != null && bytes.Length == 4)
                 {
                     _memory.Write(address, bytes);
-
-                    bytes = binaryReader.ReadBytes(4);
+                    bytes = ReadBytesInOrder(binaryReader, 4);
                     address += 4;
-                } 
+                }
             }
         }
+
+        private static byte[] ReadBytesInOrder(BinaryReader binaryReader, int count) =>
+            binaryReader.ReadBytes(count)
+                .Reverse()
+                .ToArray();
     }
 }
