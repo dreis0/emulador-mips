@@ -29,8 +29,8 @@ namespace Minips.Memory
 
         public byte[] Read(int address)
         {
-            var value = _hashTable[address];
-            return value as byte[];
+            var value = _hashTable[address] as byte[];
+            return value ?? new byte[] { 0, 0, 0, 0 };
         }
     }
 }
