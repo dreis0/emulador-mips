@@ -9,7 +9,7 @@ namespace Minips.Instrucoes.Annotations
 
         public Format(char instructionFormat)
         {
-            var valid = new char[] { 'R', 'I', 'J', };
+            var valid = new char[] { 'R', 'I', 'J'};
 
             if (!valid.Contains(instructionFormat))
                 throw new InvalidOperationException($"{instructionFormat} não é um formato válido");

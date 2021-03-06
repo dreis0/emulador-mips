@@ -1,9 +1,6 @@
 ﻿using Minips.Instrucoes;
-using Minips.Instructions;
 using Minips.Memory;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -30,6 +27,8 @@ namespace minips
 
             CarregarInstrucoes(textFile);
             CarregarDados(dataFile);
+
+            Decode();
         }
 #else
             static void Main(string[] args)
@@ -69,7 +68,6 @@ namespace minips
             using (var binaryReader = new BinaryReader(File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.Read)))
             {
                 byte[] bytes = ReadBytesInOrder(binaryReader, 4);
-
                 int address = DATA_SECTION_START;
 
                 while (bytes != null && bytes.Length == 4)
@@ -78,6 +76,18 @@ namespace minips
                     bytes = ReadBytesInOrder(binaryReader, 4);
                     address += 4;
                 }
+            }
+        }
+
+        static void Decode()
+        {
+            int address = TEXT_SECTION_START;
+
+            while(_registers.Read(address).Any(x => x != 0))
+            {
+                byte[] bytes = _registers.Read(address);
+                InstructionDecoder.PrintInstruction(bytes);
+                address += 4;
             }
         }
 

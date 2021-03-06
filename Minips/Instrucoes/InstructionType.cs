@@ -1,9 +1,6 @@
 ﻿using Minips.Instrucoes.Annotations;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Minips.Instrucoes
+namespace Minips.Instructions
 {
     public enum InstructionType
     {
@@ -143,7 +140,7 @@ namespace Minips.Instrucoes
         [Opcode(0)]
         subu,
 
-        [Format('S')]
+        [Format('R')]
         [Funct(0xC)]
         [Opcode(0)]
         syscall
