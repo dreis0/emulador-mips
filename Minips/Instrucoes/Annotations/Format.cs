@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace Minips.Instrucoes.Annotations
+namespace Minips.Instructions.Annotations
 {
     public class Format : Attribute
     {

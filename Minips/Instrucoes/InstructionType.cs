@@ -1,4 +1,4 @@
-﻿using Minips.Instrucoes.Annotations;
+﻿using Minips.Instructions.Annotations;
 
 namespace Minips.Instructions
 {

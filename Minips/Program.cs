@@ -1,4 +1,4 @@
-﻿using Minips.Instrucoes;
+﻿using Minips.Instructions;
 using Minips.Memory;
 using System;
 using System.IO;

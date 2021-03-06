@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Minips.Instrucoes.Annotations
+namespace Minips.Instructions.Annotations
 {
     public class Opcode : Attribute
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Minips.Instrucoes.Annotations
+namespace Minips.Instructions.Annotations
 {
     public class Funct : Attribute
     {

@@ -7,7 +7,7 @@ namespace Minips.Instructions
     public abstract class BaseInstruction
     {
         public int Opcode { get; set; }
-        public InstructionType Type { get; set; }
+        public InstructionInfo Info { get; set; }
     }
 
     public class Instruction_R : BaseInstruction
@@ -102,6 +102,15 @@ namespace Minips.Instructions
                 .SelectMany(x => x);
 
             return bits.Take(6).ToArray().AsInt();
+        }
+
+        public static int GetFunct(this byte[] instruction)
+        {
+            var bits = instruction
+                .Select(x => x.AsBitArray())
+                .SelectMany(x => x);
+
+            return bits.Skip(26).Take(6).ToArray().AsInt();
         }
 
         private static int AsInt(this int[] bits)

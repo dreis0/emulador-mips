@@ -2,9 +2,10 @@
 using System;
 using System.Reflection;
 using System.Linq;
-using Minips.Instrucoes.Annotations;
+using Minips.Instructions.Annotations;
+using System.Collections.Generic;
 
-namespace Minips.Instrucoes
+namespace Minips.Instructions
 {
     public static class InstructionDecoder
     {
@@ -13,118 +14,46 @@ namespace Minips.Instrucoes
             if (bytes.Length != 4)
                 throw new InvalidOperationException("Instrucao inválida");
 
-            int opCode = bytes.GetOpCode();
+            InstructionInfo i = InstructionInfo.GetInstructionInfo(bytes);
 
-            var instructions = Enum.GetValues<InstructionType>()
-                .Select(x =>
-                {
-                    var instructionType = (typeof(InstructionType)).GetMember(x.ToString()).Single();
-
-                    int opCode = instructionType.GetCustomAttribute<Opcode>().Code;
-                    char format = instructionType.GetCustomAttribute<Format>().InstructionFormat;
-
-                    return new { opCode, format };
-                })
-                .Where(x => x.opCode == opCode);
-
-            var i = instructions.FirstOrDefault();
-
-            switch (i.format)
+            switch (i.Format)
             {
                 case 'R':
-                    PrintInstruction_R(bytes);
+                    PrintInstruction_R(bytes, i);
                     break;
                 case 'I':
-                    PrintInstruction_I(bytes);
+                    PrintInstruction_I(bytes, i);
                     break;
                 case 'J':
-                    PrintInstruction_J(bytes);
-                    break;
-                default:
-                    Console.WriteLine("syscall");
+                    PrintInstruction_J(bytes, i);
                     break;
             }
         }
 
-        private static void PrintInstruction_R(byte[] bytes)
+        private static void PrintInstruction_R(byte[] bytes, InstructionInfo info)
         {
             var instruction = bytes.AsInstruction_R();
-            var instructionGlossary = Enum.GetValues<InstructionType>()
-                .Select(x =>
-                {
-                    string mnemonic = x.ToString();
 
-                    var instructionType = (typeof(InstructionType)).GetMember(x.ToString()).Single();
-
-                    int opCode = instructionType.GetCustomAttribute<Opcode>().Code;
-                    char format = instructionType.GetCustomAttribute<Format>().InstructionFormat;
-                    int? funct = instructionType.GetCustomAttribute<Funct>()?.FunctionCode;
-
-                    return new { opCode, mnemonic, format, funct };
-                });
-
-            var i = instructionGlossary
-                .Where(x => x.opCode == instruction.Opcode && ((x.funct == instruction.Funct)) || (!x.funct.HasValue && instruction.Funct == 0))
-                .SingleOrDefault();
-
-            if (i.funct == 0xC)
+            if (info.Funct == 0xC)
             {
                 Console.WriteLine("syscall");
             }
             else
             {
-                Console.WriteLine($"{i.mnemonic} ${GetRegisterAlias(instruction.RegistradorDestino)}, ${GetRegisterAlias(instruction.PrimeiroRegistradorFonte)}, ${GetRegisterAlias(instruction.SegundoRegistradorFonte)}");
+                Console.WriteLine($"{info.Mnemonic} ${GetRegisterAlias(instruction.RegistradorDestino)}, ${GetRegisterAlias(instruction.PrimeiroRegistradorFonte)}, ${GetRegisterAlias(instruction.SegundoRegistradorFonte)}");
             }
         }
 
-        private static void PrintInstruction_I(byte[] bytes)
+        private static void PrintInstruction_I(byte[] bytes, InstructionInfo info)
         {
             var instruction = bytes.AsInstruction_I();
-            var instructionGlossary = Enum.GetValues<InstructionType>()
-                .Select(x =>
-                {
-                    string mnemonic = x.ToString();
-
-                    var instructionType = (typeof(InstructionType)).GetMember(x.ToString()).Single();
-
-                    int opCode = instructionType.GetCustomAttribute<Opcode>().Code;
-                    char format = instructionType.GetCustomAttribute<Format>().InstructionFormat;
-                    int? funct = instructionType.GetCustomAttribute<Funct>()?.FunctionCode;
-
-                    return new { opCode, mnemonic, format, funct };
-                });
-
-            var i = instructionGlossary
-                .Where(x => x.opCode == instruction.Opcode)
-                .SingleOrDefault();
-
-
-            Console.WriteLine($"{i.mnemonic}, ${GetRegisterAlias(instruction.SegundoRegistradorFonte)}, ${GetRegisterAlias(instruction.PrimeiroRegistradorFonte)}, {instruction.Immediate}");
+            Console.WriteLine($"{info.Mnemonic}, ${GetRegisterAlias(instruction.SegundoRegistradorFonte)}, ${GetRegisterAlias(instruction.PrimeiroRegistradorFonte)}, {instruction.Immediate}");
         }
 
-        private static void PrintInstruction_J(byte[] bytes)
+        private static void PrintInstruction_J(byte[] bytes, InstructionInfo info)
         {
             var instruction = bytes.AsInstruction_J();
-            var instructionGlossary = Enum.GetValues<InstructionType>()
-                .Select(x =>
-                {
-                    string mnemonic = x.ToString();
-
-                    var instructionType = (typeof(InstructionType)).GetMember(x.ToString()).Single();
-
-                    int opCode = instructionType.GetCustomAttribute<Opcode>().Code;
-                    char format = instructionType.GetCustomAttribute<Format>().InstructionFormat;
-                    int? funct = instructionType.GetCustomAttribute<Funct>()?.FunctionCode;
-
-                    return new { opCode, mnemonic, format, funct };
-                });
-
-            var i = instructionGlossary
-                .Where(x => x.opCode == instruction.Opcode)
-                .SingleOrDefault();
-
-
-            Console.WriteLine($"{i.mnemonic}, ${GetRegisterAlias(instruction.Address)}");
+            Console.WriteLine($"{info.Mnemonic}, ${GetRegisterAlias(instruction.Address)}");
         }
 
         private static string GetRegisterAlias(int register)
