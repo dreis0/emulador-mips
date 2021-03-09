@@ -13,7 +13,6 @@ namespace minips
         const int DATA_SECTION_START = 0x10010000;
 
         private static MinipsMemory _memory;
-        private static MinipsMemory _registers;
 
 #if DEBUG
 
@@ -21,8 +20,8 @@ namespace minips
         {
             _memory = new MinipsMemory();
 
-            string dataFile = "C:\\Users\\Miguel dos Reis\\OneDrive\\UFABC\\Arquitetura de Computadores\\Projeto\\Entradas\\05.fibo.data";
-            string textFile = "C:\\Users\\Miguel dos Reis\\OneDrive\\UFABC\\Arquitetura de Computadores\\Projeto\\Entradas\\05.fibo.text";
+            string dataFile = "C:\\Users\\Miguel dos Reis\\OneDrive\\UFABC\\Arquitetura de Computadores\\Projeto\\Entradas\\06.collatz.data";
+            string textFile = "C:\\Users\\Miguel dos Reis\\OneDrive\\UFABC\\Arquitetura de Computadores\\Projeto\\Entradas\\06.collatz.text";
 
             CarregarInstrucoes(textFile);
             CarregarDados(dataFile);

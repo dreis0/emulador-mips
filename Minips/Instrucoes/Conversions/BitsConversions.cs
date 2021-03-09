@@ -65,5 +65,32 @@ namespace Minips.Instructions.Conversions
 
             return asBytes.ToArray();
         }
+
+        public static int AsTwoComplementInt(this int[] value)
+        {
+            if (value.First() == 1)
+            {
+                var inverted = value.Skip(1)
+                    .Select(x => x == 1 ? 0 : 1)
+                    .ToArray()
+                    .AsInt();
+
+                return -inverted - 1;
+            }
+
+            return value.AsInt();
+        }
+
+        public static int AsTwoComplementInt(this byte[] value)
+        {
+            var bits = value.SelectMany(x => x.AsBitArray()).ToArray();
+            return bits.AsTwoComplementInt();
+        }
+
+        public static int AsTwoComplementInt(this int value)
+        {
+            var bits = value.AsBytes();
+            return bits.AsTwoComplementInt();
+        }
     }
 }

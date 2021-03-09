@@ -43,7 +43,7 @@ namespace Minips.Instructions.Conversions
                 Opcode = bits.Take(6).ToArray().AsInt(),
                 PrimeiroRegistradorFonte = bits.Skip(6).Take(5).ToArray().AsInt(),
                 SegundoRegistradorFonte = bits.Skip(11).Take(5).ToArray().AsInt(),
-                Immediate = bits.Skip(16).Take(16).ToArray().AsInt(),
+                Immediate = bits.Skip(16).Take(16).ToArray().AsTwoComplementInt(),
                 Info = info
             };
         }

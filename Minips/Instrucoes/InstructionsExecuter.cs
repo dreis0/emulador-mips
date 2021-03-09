@@ -58,7 +58,7 @@ namespace Minips.Instructions
             var instruction = bytes.AsInstruction_R(info);
 
             if (IsSyscall(instruction))
-                return RunSyscall(instruction, pc);
+                return RunSyscall(pc);
 
             switch (instruction.Info.Type)
             {
@@ -76,6 +76,14 @@ namespace Minips.Instructions
                     break;
                 case InstructionType.jr:
                     pc = Jr(instruction);
+                    break;
+                case InstructionType.srl:
+                    Srl(instruction);
+                    pc += 4;
+                    break;
+                case InstructionType.sll:
+                    Sll(instruction);
+                    pc += 4;
                     break;
                 default:
                     throw new InvalidOperationException();
@@ -114,6 +122,10 @@ namespace Minips.Instructions
                 case InstructionType.bne:
                     pc = Bne(instruction, pc);
                     break;
+                case InstructionType.andi:
+                    Andi(instruction);
+                    pc += 4;
+                    break;
                 default:
                     throw new InvalidOperationException();
             }
@@ -145,7 +157,7 @@ namespace Minips.Instructions
         #region Syscalls
 
         private bool IsSyscall(Instruction_R instruction) => instruction.Funct == 0xC;
-        private int RunSyscall(Instruction_R instruction, int pc)
+        private int RunSyscall(int pc)
         {
             int v0 = _registers.Read(2).AsInt();
 
@@ -169,11 +181,10 @@ namespace Minips.Instructions
                     }
                     break;
                 case 5: //Lê um inteiro e o coloca em $v0
-                    var input = Console.ReadKey();
-                    var asInt = Convert.ToInt32(char.GetNumericValue(input.KeyChar));
+                    var input = Console.ReadLine();
+                    var asInt = Convert.ToInt32(input);
                     var bytes = asInt.AsBytes();
                     _registers.Write(2, bytes);
-                    Console.WriteLine();
                     break;
                 case 10: //Termina a execução do programa
                     return int.MaxValue;
@@ -222,6 +233,18 @@ namespace Minips.Instructions
             return _registers.Read(instruction.PrimeiroRegistradorFonte).AsInt();
         }
 
+        private void Srl(Instruction_R instruction)
+        {
+            var value = _registers.Read(instruction.SegundoRegistradorFonte).AsTwoComplementInt() >> instruction.Shamt;
+            _registers.Write(instruction.RegistradorDestino, value.AsBytes());
+        }
+
+        private void Sll(Instruction_R instruction)
+        {
+            var value = _registers.Read(instruction.SegundoRegistradorFonte).AsTwoComplementInt() << instruction.Shamt;
+            _registers.Write(instruction.RegistradorDestino, value.AsBytes());
+        }
+
         #endregion
 
         #region I Type
@@ -240,13 +263,13 @@ namespace Minips.Instructions
 
             var result = register | instruction.Immediate;
             var bytes = result.AsBytes();
-            
+
             _registers.Write(instruction.SegundoRegistradorFonte, bytes);
         }
 
         private void Addiu(Instruction_I instruction)
         {
-            int result = instruction.PrimeiroRegistradorFonte + instruction.Immediate;
+            int result = _registers.Read(instruction.PrimeiroRegistradorFonte).AsInt() + instruction.Immediate;
             _registers.Write(instruction.SegundoRegistradorFonte, result.AsBytes());
         }
 
@@ -255,7 +278,7 @@ namespace Minips.Instructions
             int registerValue = _registers.Read(instruction.PrimeiroRegistradorFonte).AsInt();
             int imm = instruction.Immediate;
 
-            var result = (registerValue + imm).AsBytes().Take(4).ToArray();
+            var result = (registerValue + imm).AsBytes();
 
             _registers.Write(instruction.SegundoRegistradorFonte, result);
         }
@@ -280,6 +303,14 @@ namespace Minips.Instructions
                 return pc + 4 + instruction.Immediate * 4;
 
             return pc + 4;
+        }
+
+        private void Andi(Instruction_I instruction)
+        {
+            int r1 = _registers.Read(instruction.PrimeiroRegistradorFonte).AsInt();
+            int result = (r1 & instruction.Immediate);
+
+            _registers.Write(instruction.SegundoRegistradorFonte, result.AsBytes());
         }
 
         #endregion

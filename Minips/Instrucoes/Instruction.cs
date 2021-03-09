@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Linq;
-
-namespace Minips.Instructions
+﻿namespace Minips.Instructions
 {
     public abstract class BaseInstruction
     {
