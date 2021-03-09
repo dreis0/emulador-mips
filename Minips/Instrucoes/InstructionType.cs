@@ -35,7 +35,7 @@ namespace Minips.Instructions
         [Opcode(0x4)]
         beq,
 
-        [Format('R')]
+        [Format('I')]
         [Opcode(0x5)]
         bne,
 

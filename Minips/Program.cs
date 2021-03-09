@@ -20,15 +20,16 @@ namespace minips
         static void Main(string[] args)
         {
             _memory = new MinipsMemory();
-            _registers = new MinipsMemory();
 
-            string textFile = "C:\\Users\\Miguel dos Reis\\OneDrive\\UFABC\\Arquitetura de Computadores\\Projeto\\Entradas\\02.hello.text";
-            string dataFile = "C:\\Users\\Miguel dos Reis\\OneDrive\\UFABC\\Arquitetura de Computadores\\Projeto\\Entradas\\02.hello.data";
+            string dataFile = "C:\\Users\\Miguel dos Reis\\OneDrive\\UFABC\\Arquitetura de Computadores\\Projeto\\Entradas\\05.fibo.data";
+            string textFile = "C:\\Users\\Miguel dos Reis\\OneDrive\\UFABC\\Arquitetura de Computadores\\Projeto\\Entradas\\05.fibo.text";
 
             CarregarInstrucoes(textFile);
             CarregarDados(dataFile);
 
             Decode();
+            Console.WriteLine();
+            Execute();
         }
 #else
             static void Main(string[] args)
@@ -54,9 +55,9 @@ namespace minips
                 byte[] bytes = ReadBytesInOrder(binaryReader, 4);
                 int address = TEXT_SECTION_START;
 
-                while (bytes != null && bytes.Length == 4)
+                while (bytes.Any())
                 {
-                    _registers.Write(address, bytes);
+                    _memory.Write(address, bytes);
                     bytes = ReadBytesInOrder(binaryReader, 4);
                     address += 4;
                 }
@@ -67,14 +68,14 @@ namespace minips
         {
             using (var binaryReader = new BinaryReader(File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.Read)))
             {
-                byte[] bytes = ReadBytesInOrder(binaryReader, 4);
+                byte[] bytes = ReadBytesInOrder(binaryReader, 1);
                 int address = DATA_SECTION_START;
 
-                while (bytes != null && bytes.Length == 4)
+                while (bytes.Any())
                 {
-                    _memory.Write(address, bytes);
-                    bytes = ReadBytesInOrder(binaryReader, 4);
-                    address += 4;
+                    _memory.Write(address, bytes[0]);
+                    bytes = ReadBytesInOrder(binaryReader, 1);
+                    address++;
                 }
             }
         }
@@ -83,12 +84,33 @@ namespace minips
         {
             int address = TEXT_SECTION_START;
 
-            while(_registers.Read(address).Any(x => x != 0))
+            while (_memory.Read(address).Any(x => x != 0))
             {
-                byte[] bytes = _registers.Read(address);
+                byte[] bytes = _memory.Read(address);
                 InstructionDecoder.PrintInstruction(bytes);
                 address += 4;
             }
+        }
+
+        static void Execute()
+        {
+            var executer = new InstructionsExecuter(_memory);
+            int address = TEXT_SECTION_START;
+
+            while (_memory.Read(address).Any(x => x != 0))
+            {
+                byte[] bytes = _memory.Read(address);
+
+                //InstructionDecoder.PrintInstruction(bytes);
+                address = executer.RunInstruction(bytes, address);
+            }
+
+            Console.WriteLine("Execution finished successfully");
+            Console.WriteLine("------------------------------------");
+
+            Console.WriteLine($"Instruction count: {executer.RCount + executer.ICount + executer.JCount} (R: {executer.RCount} I: {executer.ICount} J: {executer.JCount})");
+            Console.WriteLine($"IPS: {executer.GetExecutionTime()}s");
+
         }
 
         private static byte[] ReadBytesInOrder(BinaryReader binaryReader, int count) =>

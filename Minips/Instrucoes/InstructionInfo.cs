@@ -1,4 +1,5 @@
 ﻿using Minips.Instructions.Annotations;
+using Minips.Instructions.Conversions;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -33,7 +34,7 @@ namespace Minips.Instructions
                     char format = instructionType.GetCustomAttribute<Format>().InstructionFormat;
                     int? funct = instructionType.GetCustomAttribute<Funct>()?.FunctionCode;
 
-                    return new InstructionInfo { Format = format, OpCode = opCode, Funct = funct, Mnemonic = mnemonic };
+                    return new InstructionInfo { Format = format, OpCode = opCode, Funct = funct, Mnemonic = mnemonic, Type = x };
                 });
 
             var sameOpCode = instructions

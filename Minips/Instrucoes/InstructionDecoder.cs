@@ -1,9 +1,5 @@
-﻿using Minips.Instructions;
-using System;
-using System.Reflection;
-using System.Linq;
-using Minips.Instructions.Annotations;
-using System.Collections.Generic;
+﻿using System;
+using Minips.Instructions.Conversions;
 
 namespace Minips.Instructions
 {
@@ -32,7 +28,7 @@ namespace Minips.Instructions
 
         private static void PrintInstruction_R(byte[] bytes, InstructionInfo info)
         {
-            var instruction = bytes.AsInstruction_R();
+            var instruction = bytes.AsInstruction_R(info);
 
             if (info.Funct == 0xC)
             {
@@ -46,14 +42,14 @@ namespace Minips.Instructions
 
         private static void PrintInstruction_I(byte[] bytes, InstructionInfo info)
         {
-            var instruction = bytes.AsInstruction_I();
+            var instruction = bytes.AsInstruction_I(info);
             Console.WriteLine($"{info.Mnemonic}, ${GetRegisterAlias(instruction.SegundoRegistradorFonte)}, ${GetRegisterAlias(instruction.PrimeiroRegistradorFonte)}, {instruction.Immediate}");
         }
 
         private static void PrintInstruction_J(byte[] bytes, InstructionInfo info)
         {
-            var instruction = bytes.AsInstruction_J();
-            Console.WriteLine($"{info.Mnemonic}, ${GetRegisterAlias(instruction.Address)}");
+            var instruction = bytes.AsInstruction_J(info);
+            Console.WriteLine($"{info.Mnemonic}, 0x{instruction.Address.ToString("X")}");
         }
 
         private static string GetRegisterAlias(int register)
