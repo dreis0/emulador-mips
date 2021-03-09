@@ -22,6 +22,8 @@ namespace Minips.Memory
 
         public byte[] Read(int address)
         {
+            if(address == 0) return new byte[] { 0, 0, 0, 0 }; 
+
             var value = _hashTable[address] as byte[];
             return value ?? new byte[] { 0, 0, 0, 0 };
         }
