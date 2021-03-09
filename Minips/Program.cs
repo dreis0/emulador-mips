@@ -20,8 +20,10 @@ namespace minips
         {
             _memory = new MinipsMemory();
 
-            string dataFile = "C:\\Users\\Miguel dos Reis\\OneDrive\\UFABC\\Arquitetura de Computadores\\Projeto\\Entradas\\06.collatz.data";
-            string textFile = "C:\\Users\\Miguel dos Reis\\OneDrive\\UFABC\\Arquitetura de Computadores\\Projeto\\Entradas\\06.collatz.text";
+            string entrada = "08.sort";
+
+            string dataFile = $"C:\\Users\\Miguel dos Reis\\OneDrive\\UFABC\\Arquitetura de Computadores\\Projeto\\Entradas\\{entrada}.data";
+            string textFile = $"C:\\Users\\Miguel dos Reis\\OneDrive\\UFABC\\Arquitetura de Computadores\\Projeto\\Entradas\\{entrada}.text";
 
             CarregarInstrucoes(textFile);
             CarregarDados(dataFile);
@@ -31,7 +33,7 @@ namespace minips
             Execute();
         }
 #else
-            static void Main(string[] args)
+        static void Main(string[] args)
         {
             string tipoExecucao = args[0];
             string file = args[1];
@@ -108,7 +110,7 @@ namespace minips
             Console.WriteLine("------------------------------------");
 
             Console.WriteLine($"Instruction count: {executer.RCount + executer.ICount + executer.JCount} (R: {executer.RCount} I: {executer.ICount} J: {executer.JCount})");
-            Console.WriteLine($"IPS: {executer.GetExecutionTime()}s");
+            Console.WriteLine($"IPS: {executer.GetExecutionTime()/((double)(executer.RCount + executer.ICount + executer.JCount))}s");
 
         }
 

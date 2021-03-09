@@ -20,9 +20,9 @@ namespace Minips.Instructions.Conversions
             return new Instruction_R
             {
                 Opcode = bits.Take(6).ToArray().AsInt(),
-                PrimeiroRegistradorFonte = bits.Skip(6).Take(5).ToArray().AsInt(),
-                SegundoRegistradorFonte = bits.Skip(11).Take(5).ToArray().AsInt(),
-                RegistradorDestino = bits.Skip(16).Take(5).ToArray().AsInt(),
+                RS = bits.Skip(6).Take(5).ToArray().AsInt(),
+                RT = bits.Skip(11).Take(5).ToArray().AsInt(),
+                RD = bits.Skip(16).Take(5).ToArray().AsInt(),
                 Shamt = bits.Skip(21).Take(5).ToArray().AsInt(),
                 Funct = bits.Skip(26).Take(6).ToArray().AsInt(),
                 Info = info
@@ -41,8 +41,8 @@ namespace Minips.Instructions.Conversions
             return new Instruction_I
             {
                 Opcode = bits.Take(6).ToArray().AsInt(),
-                PrimeiroRegistradorFonte = bits.Skip(6).Take(5).ToArray().AsInt(),
-                SegundoRegistradorFonte = bits.Skip(11).Take(5).ToArray().AsInt(),
+                RS = bits.Skip(6).Take(5).ToArray().AsInt(),
+                RT = bits.Skip(11).Take(5).ToArray().AsInt(),
                 Immediate = bits.Skip(16).Take(16).ToArray().AsTwoComplementInt(),
                 Info = info
             };

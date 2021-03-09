@@ -36,14 +36,14 @@ namespace Minips.Instructions
             }
             else
             {
-                Console.WriteLine($"{info.Mnemonic} ${GetRegisterAlias(instruction.RegistradorDestino)}, ${GetRegisterAlias(instruction.PrimeiroRegistradorFonte)}, ${GetRegisterAlias(instruction.SegundoRegistradorFonte)}");
+                Console.WriteLine($"{info.Mnemonic} ${GetRegisterAlias(instruction.RD)}, ${GetRegisterAlias(instruction.RS)}, ${GetRegisterAlias(instruction.RT)}");
             }
         }
 
         private static void PrintInstruction_I(byte[] bytes, InstructionInfo info)
         {
             var instruction = bytes.AsInstruction_I(info);
-            Console.WriteLine($"{info.Mnemonic}, ${GetRegisterAlias(instruction.SegundoRegistradorFonte)}, ${GetRegisterAlias(instruction.PrimeiroRegistradorFonte)}, {instruction.Immediate}");
+            Console.WriteLine($"{info.Mnemonic}, ${GetRegisterAlias(instruction.RT)}, ${GetRegisterAlias(instruction.RS)}, {instruction.Immediate}");
         }
 
         private static void PrintInstruction_J(byte[] bytes, InstructionInfo info)

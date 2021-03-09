@@ -102,35 +102,34 @@ namespace Minips.Instructions
             {
                 case InstructionType.lui:
                     Lui(instruction);
-                    pc += 4;
                     break;
                 case InstructionType.ori:
                     Ori(instruction);
-                    pc += 4;
                     break;
                 case InstructionType.addiu:
                     Addiu(instruction);
-                    pc += 4;
                     break;
                 case InstructionType.addi:
                     Addi(instruction);
-                    pc += 4;
                     break;
                 case InstructionType.beq:
-                    pc = Beq(instruction, pc);
-                    break;
+                    return Beq(instruction, pc);
                 case InstructionType.bne:
-                    pc = Bne(instruction, pc);
-                    break;
+                    return Bne(instruction, pc);
                 case InstructionType.andi:
                     Andi(instruction);
-                    pc += 4;
+                    break;
+                case InstructionType.lw:
+                    Lw(instruction);
+                    break;
+                case InstructionType.sw:
+                    Sw(instruction);
                     break;
                 default:
                     throw new InvalidOperationException();
             }
 
-            return pc;
+            return pc + 4;
         }
 
         private int RunInstruction_J(byte[] bytes, InstructionInfo info, int pc)
@@ -203,46 +202,46 @@ namespace Minips.Instructions
 
         private void Add(Instruction_R instruction)
         {
-            int r1 = _registers.Read(instruction.PrimeiroRegistradorFonte).AsInt();
-            int r2 = _registers.Read(instruction.SegundoRegistradorFonte).AsInt();
+            int r1 = _registers.Read(instruction.RS).AsInt();
+            int r2 = _registers.Read(instruction.RT).AsInt();
 
-            _registers.Write(instruction.RegistradorDestino, (r1 + r2).AsBytes());
+            _registers.Write(instruction.RD, (r1 + r2).AsBytes());
         }
 
         private void Addu(Instruction_R instruction)
         {
-            int r1 = _registers.Read(instruction.PrimeiroRegistradorFonte).AsInt();
-            int r2 = _registers.Read(instruction.SegundoRegistradorFonte).AsInt();
+            int r1 = _registers.Read(instruction.RS).AsInt();
+            int r2 = _registers.Read(instruction.RT).AsInt();
 
-            _registers.Write(instruction.RegistradorDestino, (r1 + r2).AsBytes());
+            _registers.Write(instruction.RD, (r1 + r2).AsBytes());
         }
 
         private void Slt(Instruction_R instruction)
         {
-            int r1 = _registers.Read(instruction.PrimeiroRegistradorFonte).AsInt();
-            int r2 = _registers.Read(instruction.SegundoRegistradorFonte).AsInt();
+            int r1 = _registers.Read(instruction.RS).AsInt();
+            int r2 = _registers.Read(instruction.RT).AsInt();
 
             if (r1 < r2)
-                _registers.Write(instruction.RegistradorDestino, 1.AsBytes());
+                _registers.Write(instruction.RD, 1.AsBytes());
             else
-                _registers.Write(instruction.RegistradorDestino, 0.AsBytes());
+                _registers.Write(instruction.RD, 0.AsBytes());
         }
 
         private int Jr(Instruction_R instruction)
         {
-            return _registers.Read(instruction.PrimeiroRegistradorFonte).AsInt();
+            return _registers.Read(instruction.RS).AsInt();
         }
 
         private void Srl(Instruction_R instruction)
         {
-            var value = _registers.Read(instruction.SegundoRegistradorFonte).AsTwoComplementInt() >> instruction.Shamt;
-            _registers.Write(instruction.RegistradorDestino, value.AsBytes());
+            var value = _registers.Read(instruction.RT).AsTwoComplementInt() >> instruction.Shamt;
+            _registers.Write(instruction.RD, value.AsBytes());
         }
 
         private void Sll(Instruction_R instruction)
         {
-            var value = _registers.Read(instruction.SegundoRegistradorFonte).AsTwoComplementInt() << instruction.Shamt;
-            _registers.Write(instruction.RegistradorDestino, value.AsBytes());
+            var value = _registers.Read(instruction.RT).AsTwoComplementInt() << instruction.Shamt;
+            _registers.Write(instruction.RD, value.AsBytes());
         }
 
         #endregion
@@ -254,39 +253,39 @@ namespace Minips.Instructions
             int toLoad = instruction.Immediate << 16;
             var bytes = toLoad.AsBytes();
 
-            _registers.Write(instruction.SegundoRegistradorFonte, bytes);
+            _registers.Write(instruction.RT, bytes);
         }
 
         private void Ori(Instruction_I instruction)
         {
-            var register = _registers.Read(instruction.PrimeiroRegistradorFonte).AsInt();
+            var register = _registers.Read(instruction.RS).AsInt();
 
             var result = register | instruction.Immediate;
             var bytes = result.AsBytes();
 
-            _registers.Write(instruction.SegundoRegistradorFonte, bytes);
+            _registers.Write(instruction.RT, bytes);
         }
 
         private void Addiu(Instruction_I instruction)
         {
-            int result = _registers.Read(instruction.PrimeiroRegistradorFonte).AsInt() + instruction.Immediate;
-            _registers.Write(instruction.SegundoRegistradorFonte, result.AsBytes());
+            int result = _registers.Read(instruction.RS).AsInt() + instruction.Immediate;
+            _registers.Write(instruction.RT, result.AsBytes());
         }
 
         private void Addi(Instruction_I instruction)
         {
-            int registerValue = _registers.Read(instruction.PrimeiroRegistradorFonte).AsInt();
+            int registerValue = _registers.Read(instruction.RS).AsInt();
             int imm = instruction.Immediate;
 
             var result = (registerValue + imm).AsBytes();
 
-            _registers.Write(instruction.SegundoRegistradorFonte, result);
+            _registers.Write(instruction.RT, result);
         }
 
         private int Beq(Instruction_I instruction, int pc)
         {
-            int r1 = _registers.Read(instruction.PrimeiroRegistradorFonte).AsInt();
-            int r2 = _registers.Read(instruction.SegundoRegistradorFonte).AsInt();
+            int r1 = _registers.Read(instruction.RS).AsInt();
+            int r2 = _registers.Read(instruction.RT).AsInt();
 
             if (r1 == r2)
                 return pc + 4 + instruction.Immediate * 4;
@@ -296,8 +295,8 @@ namespace Minips.Instructions
 
         private int Bne(Instruction_I instruction, int pc)
         {
-            int r1 = _registers.Read(instruction.PrimeiroRegistradorFonte).AsInt();
-            int r2 = _registers.Read(instruction.SegundoRegistradorFonte).AsInt();
+            int r1 = _registers.Read(instruction.RS).AsInt();
+            int r2 = _registers.Read(instruction.RT).AsInt();
 
             if (r1 != r2)
                 return pc + 4 + instruction.Immediate * 4;
@@ -307,10 +306,28 @@ namespace Minips.Instructions
 
         private void Andi(Instruction_I instruction)
         {
-            int r1 = _registers.Read(instruction.PrimeiroRegistradorFonte).AsInt();
+            int r1 = _registers.Read(instruction.RS).AsInt();
             int result = (r1 & instruction.Immediate);
 
-            _registers.Write(instruction.SegundoRegistradorFonte, result.AsBytes());
+            _registers.Write(instruction.RT, result.AsBytes());
+        }
+
+        private void Lw(Instruction_I instruction)
+        {
+            int register = _registers.Read(instruction.RS).AsInt();
+            int address = register + instruction.Immediate;
+
+            var word = _memory.Read(address).Reverse().ToArray();
+            _registers.Write(instruction.RT, word);
+        }
+
+        private void Sw(Instruction_I instruction)
+        {
+            int register = _registers.Read(instruction.RS).AsInt();
+            int address = register + instruction.Immediate;
+
+            var word = _registers.Read(instruction.RT).Reverse().ToArray();
+            _memory.Write(address, word);
         }
 
         #endregion
