@@ -1,4 +1,4 @@
-﻿using Minips.Instructions;
+using Minips.Instructions;
 using Minips.Memory;
 using System;
 using System.IO;
@@ -39,13 +39,31 @@ namespace minips
             string file = args[1];
 
             _memory = new MinipsMemory();
-            _registers = new MinipsMemory();
 
             string textFile = $"./{file}.text";
             string dataFile = $"./{file}.data";
 
+            if (!File.Exists(textFile))
+            {
+                Console.WriteLine($"O arquivo {textFile} não foi encontrado");
+                return;
+            }
+
+            if (!File.Exists(dataFile))
+            {
+                Console.WriteLine($"O arquivo {dataFile} não foi encontrado");
+                return;
+            }
+
             CarregarInstrucoes(textFile);
             CarregarDados(dataFile);
+
+            if (tipoExecucao == "decode")
+                Decode();
+            else if (tipoExecucao == "run")
+                Execute();
+            else
+                Console.WriteLine("Use: minips run arquivo / minips decode arquivo");
         }
 #endif
 
