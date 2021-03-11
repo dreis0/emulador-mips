@@ -36,20 +36,41 @@ namespace Minips.Instructions
             }
             else
             {
-                Console.WriteLine($"{info.Mnemonic} ${GetRegisterAlias(instruction.RD)}, ${GetRegisterAlias(instruction.RS)}, ${GetRegisterAlias(instruction.RT)}");
+                switch (instruction.Info.Type)
+                {
+                    case InstructionType.jr:
+                        Console.WriteLine($"{info.Mnemonic} ${GetRegisterAlias(instruction.RS)}");
+                        break;
+                    default:
+                        Console.WriteLine($"{info.Mnemonic} ${GetRegisterAlias(instruction.RD)}, ${GetRegisterAlias(instruction.RS)}, ${GetRegisterAlias(instruction.RT)}");
+                        break;
+                }
             }
         }
 
         private static void PrintInstruction_I(byte[] bytes, InstructionInfo info)
         {
             var instruction = bytes.AsInstruction_I(info);
-            Console.WriteLine($"{info.Mnemonic}, ${GetRegisterAlias(instruction.RT)}, ${GetRegisterAlias(instruction.RS)}, {instruction.Immediate}");
+
+            switch (instruction.Info.Type)
+            {
+                case InstructionType.lui:
+                    Console.WriteLine($"{info.Mnemonic} ${GetRegisterAlias(instruction.RT)}, {instruction.Immediate}");
+                    break;
+                case InstructionType.lw:
+                case InstructionType.sw:
+                    Console.WriteLine($"{info.Mnemonic} ${GetRegisterAlias(instruction.RT)}, 0x{instruction.Immediate.ToString("X")}(${GetRegisterAlias(instruction.RS)})");
+                    break;
+                default:
+                    Console.WriteLine($"{info.Mnemonic} ${GetRegisterAlias(instruction.RT)}, ${GetRegisterAlias(instruction.RS)}, {instruction.Immediate}");
+                    break;
+            }
         }
 
         private static void PrintInstruction_J(byte[] bytes, InstructionInfo info)
         {
             var instruction = bytes.AsInstruction_J(info);
-            Console.WriteLine($"{info.Mnemonic}, 0x{instruction.Address.ToString("X")}");
+            Console.WriteLine($"{info.Mnemonic} 0x{instruction.Address.ToString("X")}");
         }
 
         private static string GetRegisterAlias(int register)

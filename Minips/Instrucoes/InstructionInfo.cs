@@ -26,7 +26,7 @@ namespace Minips.Instructions
             var instructions = Enum.GetValues<InstructionType>()
                 .Select(x =>
                 {
-                    string mnemonic = x.ToString();
+                    string mnemonic = x.ToString().ToUpper();
 
                     var instructionType = (typeof(InstructionType)).GetMember(x.ToString()).Single();
 
